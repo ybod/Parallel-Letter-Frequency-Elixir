@@ -9,13 +9,13 @@ list of texts and that employs parallelism.
 
 # Solution
 
-1. Get list of binary strings as input.
-2. Convert all input strings to lower case.
-3. Extract Unicode characters from every string into separate list of characters (binaries). Every string containing letters will result into list so we will have a list of lists as an output of this step.
-3. Divide list in chunks of lists - each chunk will contain a number of lists according to a given number of workers.
-4. Now we can iterate over chunks and process all lists in every chunk separately and asynchronously. Every list of letters is asynchronously reduced into a letters frequency map containing letters as keys and frequency counter as values.
-5. Merge all maps into one resulting map containing frequency of letters from all input texts.
+1. Split input texts into chunks according to a given number of workers (using simple round robin approach)
+2. Process every chunk (list of strings) via separate asynchronous Task
+3. Convert all strings to lower case.
+4. Extract Unicode letters from every string into a list of separate letters (binaries).
+5. Every list of letters is reduced into a letters frequency map containing letters as keys and frequency counter as values.
+6. Merge all maps into one resulting map containing frequency of letters from all input texts.
 
 # Tests
 
-Few additional tests were added to Exercism test suite for my new functions
+Few additional tests were added to Exercism test suite new functions

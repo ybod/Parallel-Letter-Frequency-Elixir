@@ -54,24 +54,44 @@ defmodule FrequencyTest do
     Frequency.frequency(texts, workers) |> Enum.sort() |> Enum.into(%{})
   end
 
-  test "extract letters from text string into list" do
+  test "divide list of values using round robin approach - returns map" do
+    assert(Frequency.round_robin([1, 2, 3, 4, 5], 1, 0, %{}) == %{0 => [5, 4, 3, 2, 1]})
+    assert(Frequency.round_robin([1, 2, 3, 4, 5], 2, 0, %{}) == %{0 => [5, 3, 1], 1 => [4, 2]})
+    assert(Frequency.round_robin([1, 2, 3, 4, 5], 3, 0, %{}) == %{0 => [4, 1], 1 => [5, 2], 2 => [3]})
+    assert(Frequency.round_robin([1, 2, 3, 4, 5], 4, 0, %{}) == %{0 => [5, 1], 1 => [2], 2 => [3], 3 => [4]})
+    assert(Frequency.round_robin([1, 2, 3, 4, 5], 5, 0, %{}) == %{0 => [1], 1 => [2], 2 => [3], 3 => [4], 4 => [5]})
+    assert(Frequency.round_robin([1, 2, 3, 4, 5], 6, 0, %{}) == %{0 => [1], 1 => [2], 2 => [3], 3 => [4], 4 => [5]})
+  end
+
+  test "divide text into chunks (lists of texts) according to a number of workers" do
+    assert(Frequency.split_texts_in_chunks(["a", "bb", "ccc", "dddd"], 3) == [["dddd", "a"], ["bb"], ["ccc"]])
+  end
+
+  #@tag :pending
+  test "extract unicode letters from text string into list" do
     res = Frequency.exract_letters("ab12 -c ![ü]  ?ö")
     assert(res == ["a", "b", "c", "ü", "ö"])
   end
 
+  #@tag :pending
   test "create letters frequency map from list of unicode letters" do
     res = Frequency.map_letters(["a", "b", "c", "a", "ü", "ü", "ö", "c", "a"])
     assert(res == %{"a" => 3, "b" => 1, "c" => 2, "ö" => 1, "ü" => 2})
   end
 
-  test "create letters frequency map from list of list of unicode letters - async" do
-    res = Frequency.map_letters_async([["a", "b", "a"], ["ü", "ü"], ["ö"]])
-    assert(res == [%{"a" => 2, "b" => 1}, %{"ü" => 2}, %{"ö" => 1}])
-  end
-
+  #@tag :pending
   test "merging two maps" do
     res = Frequency.merge_maps(%{"a" => 1, "b" => 2, "c" => 3}, %{"b" => 4, "c" => 5, "d" => 6})
     assert(res == %{"a" => 1, "b" => 6, "c" => 8, "d" => 6})
+  end
+
+  #@tag :pending
+  test "proces list (chunk) of texts" do
+    res =
+      Frequency.process_texts_chunk_async(["abacab", "üüö", "ъ"])
+      |> Enum.to_list()
+
+    assert(res == [%{"a" => 3, "b" => 2, "c" => 1}, %{"ü" => 2, "ö" => 1}, %{"ъ" => 1}])
   end
 
   #@tag :pending
